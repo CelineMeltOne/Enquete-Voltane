@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enquete Voltane — Atelier SQL Expert MeltOne</title>
+<style>
+@font-face{font-family:'Roboto';src:url('Roboto-Regular.ttf') format('truetype');font-weight:400;font-display:swap}
+@font-face{font-family:'Roboto';src:url('Roboto-Medium.ttf') format('truetype');font-weight:500;font-display:swap}
+@font-face{font-family:'Roboto';src:url('Roboto-Bold.ttf') format('truetype');font-weight:700;font-display:swap}
+@font-face{font-family:'Roboto Condensed';src:url('RobotoCondensed-Bold.ttf') format('truetype');font-weight:700;font-display:swap}
+
+:root{
+  --copper:#D5A47E; --copper-dark:#B4835B; --copper-pale:#EAD3BE;
+  --marine:#404672; --marine-2:#565D92;
+  --ardoise:#5B6179; --charbon:#2C2B2F; --encre:#434343;
+  --creme:#F0EFEB; --blanc:#FFFFFF; --brume:#E2E6ED; --filet:#DADDE3;
+  --teal:#9DD5D5; --peri:#CED9FA; --beurre:#FCFDD5;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+:focus-visible{outline:3px solid var(--copper-dark);outline-offset:2px}
+body{background:var(--creme);color:var(--encre);font-family:'Roboto',Arial,sans-serif;margin:0;line-height:1.55}
+p{margin:0 0 14px}
+.wrap{max-width:880px;margin:0 auto;padding:0 24px 90px}
+
+/* --- Hero, bord dechire façon dossier tamponne --- */
+.hero{background:var(--marine);color:var(--creme);padding:54px 24px 76px;text-align:center;position:relative;
+  clip-path:polygon(0 0,100% 0,100% 92%,97% 100%,94% 92%,91% 100%,88% 92%,85% 100%,82% 92%,79% 100%,76% 92%,
+  73% 100%,70% 92%,67% 100%,64% 92%,61% 100%,58% 92%,55% 100%,52% 92%,49% 100%,46% 92%,43% 100%,40% 92%,
+  37% 100%,34% 92%,31% 100%,28% 92%,25% 100%,22% 92%,19% 100%,16% 92%,13% 100%,10% 92%,7% 100%,4% 92%,0 100%)}
+.hero img{height:34px;margin-bottom:22px}
+.hero h1{font-family:'Roboto';font-weight:900;font-size:38px;margin:0 0 12px;color:var(--creme);letter-spacing:-0.01em}
+.hero p{color:var(--peri);font-size:15.5px;max-width:560px;margin:0 auto;font-weight:500}
+.hero-stamp{position:absolute;top:22px;right:6%;background:var(--copper);color:var(--charbon);
+  border:3px solid var(--charbon);border-radius:10px;padding:6px 14px;font-family:'Roboto Condensed',Arial,sans-serif;
+  font-weight:700;text-transform:uppercase;letter-spacing:0.1em;font-size:11px;transform:rotate(6deg);
+  box-shadow:4px 4px 0 var(--charbon)}
+
+.surtitre{font-family:'Roboto Condensed',Arial,sans-serif;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.12em;color:var(--copper-dark);font-size:12.5px;
+  display:block;margin:0 0 8px}
+.surtitre.on-marine{color:var(--peri)}
+.surtitre.stamp{display:inline-block;background:var(--charbon);color:var(--beurre);padding:4px 12px;
+  border-radius:7px;transform:rotate(-2deg);font-size:11.5px;margin:0 0 10px}
+
+.carte{background:var(--blanc);border-radius:22px;border:3px solid var(--charbon);
+  box-shadow:8px 8px 0 var(--charbon);padding:32px;margin-top:-40px;position:relative}
+.carte>*:last-child{margin-bottom:0}
+h2{color:var(--marine);font-weight:900;font-size:22px;margin:0 0 14px}
+h3{color:var(--marine);font-weight:700;font-size:16px;margin:0 0 12px}
+
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border-radius:999px;
+  background:var(--peri);color:var(--marine);font-size:.82em;font-weight:700;
+  border:2px solid var(--charbon)}
+.chip.teal{background:var(--teal)}
+.chip.beurre{background:var(--beurre)}
+
+.cta{background:var(--copper);color:var(--charbon);border:2.5px solid var(--charbon);border-radius:999px;
+  padding:11px 22px;font-weight:700;font-family:'Roboto Condensed',Arial,sans-serif;text-transform:uppercase;
+  letter-spacing:0.05em;cursor:pointer;font-size:13.5px;box-shadow:4px 4px 0 var(--charbon);
+  transition:transform .12s,box-shadow .12s}
+.cta:hover{background:var(--copper-dark);color:var(--blanc);transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--charbon)}
+.cta:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--charbon)}
+.cta.secondary{background:var(--brume);color:var(--marine)}
+.cta.secondary:hover{background:var(--filet);color:var(--marine)}
+.cta:disabled{opacity:.4;cursor:not-allowed;box-shadow:4px 4px 0 var(--charbon);transform:none}
+.section{margin-top:30px}
+
+.step{background:var(--blanc);border-radius:22px;border:3px solid var(--charbon);
+  box-shadow:7px 7px 0 var(--charbon);padding:28px;margin-top:24px;transition:opacity .3s}
+.step.locked{opacity:.38;pointer-events:none;box-shadow:none}
+.step.done{border-color:var(--charbon);box-shadow:7px 7px 0 var(--copper)}
+.step-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.step p{margin:0 0 4px}
+.step details{margin:14px 0}
+.step>*:last-child{margin-bottom:0}
+.badge{width:34px;height:34px;border-radius:50%;background:var(--marine);color:var(--creme);
+  display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;flex:none;
+  border:2.5px solid var(--charbon);box-shadow:3px 3px 0 var(--charbon);transform:rotate(-4deg)}
+.badge.done{background:var(--copper);color:var(--charbon);transform:rotate(4deg)}
+
+textarea.sql{width:100%;min-height:190px;font-family:'Roboto Mono',monospace;font-size:13.5px;margin-top:4px;
+  line-height:1.6;tab-size:2;
+  border:2.5px solid var(--charbon);border-radius:14px;padding:12px;background:var(--creme);color:var(--charbon);
+  resize:vertical;box-shadow:inset 0 0 0 transparent}
+textarea.sql:focus{box-shadow:4px 4px 0 var(--charbon)}
+.answer-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:16px}
+input.ans{flex:1;min-width:180px;padding:10px 14px;border-radius:999px;border:2.5px solid var(--charbon);
+  font-family:'Roboto';font-size:14px;background:var(--creme);font-weight:500;text-overflow:ellipsis}
+input.ans:focus{box-shadow:3px 3px 0 var(--charbon)}
+.result-box{margin-top:16px;overflow:auto;max-height:260px;border:2.5px solid var(--charbon);border-radius:14px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th{background:var(--marine);color:var(--creme);text-align:left;padding:7px 10px;position:sticky;top:0;
+  font-family:'Roboto Condensed',Arial,sans-serif;text-transform:uppercase;letter-spacing:0.04em;font-size:11px}
+td{padding:6px 10px;border-bottom:1px solid var(--filet)}
+tr:nth-child(even) td{background:var(--brume)}
+.feedback{margin-top:10px;font-size:13.5px;font-weight:700;border-radius:12px;padding:10px 14px;
+  border:2px solid var(--charbon)}
+.feedback.ok{background:var(--copper-pale);color:var(--charbon)}
+.feedback.ko{background:var(--brume);color:var(--marine)}
+details{margin-top:16px}
+summary{cursor:pointer;color:var(--copper-dark);font-weight:700;font-size:13.5px;
+  font-family:'Roboto Condensed',Arial,sans-serif;text-transform:uppercase;letter-spacing:0.04em}
+summary::marker{color:var(--copper-dark)}
+.hint-box{margin-top:10px;background:var(--creme);border:2px dashed var(--ardoise);border-radius:12px;
+  padding:12px 16px;font-size:13.5px;color:var(--ardoise)}
+.schema-table{margin-top:8px}
+.schema-table code{background:var(--brume);padding:1px 6px;border-radius:6px;font-size:12px}
+.schema-diagram{margin-top:16px;overflow-x:auto}
+.final-reveal{background:var(--marine);color:var(--creme);border-radius:22px;padding:32px;margin-top:22px;
+  display:none;position:relative;border:3px solid var(--charbon);box-shadow:8px 8px 0 var(--charbon);overflow:hidden}
+.final-reveal h3{color:var(--creme);font-size:20px}
+.final-reveal .chip{background:var(--copper);color:var(--charbon)}
+.case-stamp{position:absolute;top:18px;right:-8px;background:transparent;color:var(--copper);
+  border:5px solid var(--copper);border-radius:10px;padding:8px 18px;font-family:'Roboto Condensed',Arial,sans-serif;
+  font-weight:700;text-transform:uppercase;letter-spacing:0.08em;font-size:15px;transform:rotate(9deg);
+  opacity:.9;pointer-events:none}
+.share-block{margin-top:22px;padding-top:20px;border-top:2px solid rgba(240,239,235,.25)}
+.share-block canvas{width:100%;height:auto;border-radius:14px;border:3px solid var(--charbon);
+  box-shadow:6px 6px 0 rgba(0,0,0,.25);margin-top:10px;background:var(--marine)}
+.share-block .small{color:var(--peri)}
+footer{text-align:center;color:var(--ardoise);font-size:12px;margin-top:56px}
+.facil-link{text-align:center;margin-top:44px}
+.facil-link a{color:var(--ardoise);font-size:12px;cursor:pointer;text-decoration:underline}
+#facilPanel{display:none;background:var(--charbon);color:var(--creme);border-radius:18px;padding:20px;
+  margin-top:16px;font-size:13px;border:3px solid var(--charbon);box-shadow:6px 6px 0 var(--copper-dark)}
+#facilPanel code{color:var(--beurre)}
+.susp-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12.5px}
+.susp-table th{text-align:left;padding:6px 10px;background:rgba(240,239,235,.1);color:var(--peri);
+  font-family:'Roboto Condensed',Arial,sans-serif;text-transform:uppercase;font-size:10.5px;letter-spacing:.04em}
+.susp-table td{padding:6px 10px;border-bottom:1px solid rgba(240,239,235,.12)}
+.susp-table tr:nth-child(even) td{background:rgba(240,239,235,.06)}
+.susp-high{color:var(--copper);font-weight:700}
+.susp-mid{color:var(--beurre);font-weight:700}
+.susp-low{color:var(--teal);font-weight:700}
+.susp-gate{margin-top:22px;text-align:center}
+.susp-dot{opacity:.25;font-size:13px;cursor:pointer;user-select:none;display:inline-block;
+  padding:6px 10px;color:var(--creme);transition:opacity .2s}
+.susp-dot:hover{opacity:.7}
+.susp-gate-form{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}
+.susp-pass-input{padding:8px 12px;border-radius:999px;border:2px solid var(--ardoise);background:var(--charbon);
+  color:var(--creme);font-family:'Roboto Mono',monospace;font-size:12.5px;max-width:160px}
+.susp-pass-input:focus{border-color:var(--copper)}
+.susp-gate-btn{padding:8px 16px;font-size:12px}
+#suspGateMsg{color:var(--copper);width:100%;text-align:center;margin-top:4px}
+#suspContent{margin-top:14px;text-align:left}
+.small{font-size:12.5px;color:var(--ardoise)}
+
+/* --- Barre de progression sticky --- */
+.progressbar{position:sticky;top:0;z-index:60;background:var(--creme);
+  border-bottom:3px solid var(--charbon);padding:10px 18px}
+.progressbar-inner{max-width:880px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.ptime{font-family:'Roboto Mono',monospace;font-size:12.5px;color:var(--charbon);min-width:54px;font-weight:700}
+.pdots{display:flex;gap:8px;flex:1;justify-content:center;flex-wrap:wrap}
+.pdot{width:30px;height:30px;border-radius:50%;border:2px solid var(--charbon);background:var(--brume);color:var(--ardoise);
+  font-family:'Roboto Condensed',Arial,sans-serif;font-weight:700;font-size:12px;cursor:not-allowed;
+  display:inline-flex;align-items:center;justify-content:center;transition:transform .2s,background .25s,color .25s;opacity:.5}
+.pdot.unlocked{background:var(--peri);color:var(--marine);cursor:pointer;opacity:1;box-shadow:2px 2px 0 var(--charbon)}
+.pdot.current{background:var(--marine);color:var(--creme);cursor:pointer;opacity:1;box-shadow:2px 2px 0 var(--copper)}
+.pdot.done{background:var(--copper);color:var(--charbon);cursor:pointer;opacity:1;box-shadow:2px 2px 0 var(--charbon)}
+.pdot.unlocked:hover,.pdot.done:hover,.pdot.current:hover{transform:scale(1.15) rotate(-4deg)}
+.pscore{font-family:'Roboto Condensed',Arial,sans-serif;font-weight:700;font-size:12px;letter-spacing:.06em;
+  color:var(--copper-dark);min-width:46px;text-align:right}
+
+/* --- Etats et micro-interactions --- */
+.spinner{width:16px;height:16px;border-radius:50%;border:2.5px solid var(--filet);border-top-color:var(--copper-dark);
+  display:inline-block;vertical-align:middle;margin-right:6px;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes stepIn{from{opacity:0;transform:translateY(14px) rotate(-1deg)}to{opacity:1;transform:translateY(0) rotate(0)}}
+.step.reveal{animation:stepIn .45s ease both}
+@keyframes shake{10%,90%{transform:translateX(-2px) rotate(-.5deg)}20%,80%{transform:translateX(3px) rotate(.5deg)}
+  30%,50%,70%{transform:translateX(-5px) rotate(-.7deg)}40%,60%{transform:translateX(5px) rotate(.7deg)}}
+.shake{animation:shake .5s}
+@keyframes popIn{0%{transform:scale(.3) rotate(-20deg);opacity:0}70%{transform:scale(1.2) rotate(-4deg)}100%{transform:scale(1) rotate(-4deg);opacity:1}}
+.badge.done{animation:popIn .45s ease}
+@keyframes stampIn{0%{transform:rotate(9deg) scale(2.4);opacity:0}60%{opacity:1}100%{transform:rotate(9deg) scale(1);opacity:.9}}
+.case-stamp{animation:stampIn .5s cubic-bezier(.2,.8,.3,1.2) both}
+@media (prefers-reduced-motion: reduce){
+  .step.reveal,.badge.done,.shake,.case-stamp{animation:none}
+  html{scroll-behavior:auto}
+}
+.kbd-hint{font-size:11.5px;color:var(--ardoise);margin-top:14px;line-height:1.6}
+.kbd-hint kbd{background:var(--brume);border:1.5px solid var(--charbon);border-radius:5px;padding:1px 5px;font-family:'Roboto Mono',monospace}
+.result-toolbar{display:flex;justify-content:space-between;align-items:center;margin-top:16px;gap:8px;flex-wrap:wrap}
+#confettiCanvas{position:fixed;inset:0;pointer-events:none;z-index:200}
+.fab{position:fixed;bottom:24px;right:24px;z-index:65;display:none;align-items:center;gap:8px;
+  background:var(--marine);color:var(--creme);border:2.5px solid var(--charbon);border-radius:999px;
+  padding:12px 20px 12px 16px;font-family:'Roboto Condensed',Arial,sans-serif;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.05em;font-size:12.5px;cursor:pointer;
+  box-shadow:5px 5px 0 var(--charbon);transition:transform .12s,box-shadow .12s}
+.fab-arrow{font-size:15px}
+.fab:hover{transform:translate(-1px,-1px);box-shadow:6px 6px 0 var(--charbon);background:var(--marine-2)}
+.fab:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--charbon)}
+@media (max-width:480px){
+  .fab{bottom:16px;right:16px;padding:11px 16px 11px 14px;font-size:11.5px}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <img src="meltone_wordmark.png" alt="MeltOne">
+  <div class="hero-stamp">Confidentiel</div>
+  <div class="surtitre on-marine">Atelier interne — Data &amp; IA</div>
+  <h1>Enquete Voltane</h1>
+  <p>Un exercice SQL qui ne pardonne pas les a-peu-pres. Duree indicative : 45 a 60 minutes.</p>
+</div>
+
+<div class="progressbar">
+  <div class="progressbar-inner">
+    <span class="ptime" id="ptime" title="Temps ecoule">00:00</span>
+    <div class="pdots">
+      <button class="pdot" id="pdot-1" onclick="goTo('step1')" title="Etape 1">1</button>
+      <button class="pdot" id="pdot-2" onclick="goTo('step2')" title="Etape 2">2</button>
+      <button class="pdot" id="pdot-3" onclick="goTo('step3')" title="Etape 3">3</button>
+      <button class="pdot" id="pdot-4" onclick="goTo('step4')" title="Etape 4">4</button>
+      <button class="pdot" id="pdot-5" onclick="goTo('step5')" title="Piece 5 (bonus)">5</button>
+      <button class="pdot" id="pdot-F" onclick="goTo('stepFinal')" title="Bilan">6</button>
+    </div>
+    <span class="pscore" id="pscore">0/6</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="carte section">
+    <div class="surtitre">Le contexte</div>
+    <h2>Une marge qui s'effrite chez Voltane</h2>
+    <p>Voltane, enseigne de maroquinerie haut de gamme (5 boutiques, Ile-de-France et Cote d'Azur), a demande a MeltOne un audit flash : la marge du reseau se degrade depuis six mois sans explication produit ou marche. La direction soupconne une fraude interne mais n'a aucune piste. Votre equipe recoit un acces en lecture a l'entrepot de donnees du reseau : ventes, ajustements de stock, notes de frais, fournisseurs.</p>
+    <p><strong>Votre mission :</strong> identifier la personne a l'origine du schema de fraude, comprendre son mode operatoire, et chiffrer le prejudice pour le rapport d'audit. Chaque etape ci-dessous exige une approche SQL differente : a vous de la trouver. Validez une reponse pour debloquer la suite.</p>
+    <details open>
+      <summary>Voir le schema de la base (7 tables)</summary>
+      <div class="schema-diagram">
+        <svg viewBox="0 0 1010 660" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:Roboto,Arial,sans-serif"><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#2C2B2F"/></marker><marker id="arrowfk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#B4835B"/></marker><line x1="210" y1="64" x2="390" y2="250" stroke="#2C2B2F" stroke-width="2.2" marker-end="url(#arrow)"/><rect x="273" y="148" width="54" height="16" rx="8" fill="#F0EFEB" stroke="#2C2B2F" stroke-width="1.3"/><text x="300" y="160" font-size="10.5" fill="#2C2B2F" text-anchor="middle" font-family="Roboto Mono, monospace">store_id</text><path d="M 115 108 L 115 338 L 230 338 L 230 390" fill="none" stroke="#2C2B2F" stroke-width="2.2" marker-end="url(#arrow)"/><rect x="88" y="114" width="54" height="16" rx="8" fill="#F0EFEB" stroke="#2C2B2F" stroke-width="1.3"/><text x="115" y="126" font-size="10.5" fill="#2C2B2F" text-anchor="middle" font-family="Roboto Mono, monospace">store_id</text><path d="M 115 108 L 115 338 L 505 338 L 505 390" fill="none" stroke="#2C2B2F" stroke-width="2.2" marker-end="url(#arrow)"/><path d="M 885 108 L 885 366 L 230 366 L 230 390" fill="none" stroke="#2C2B2F" stroke-width="2.2" marker-end="url(#arrow)"/><rect x="851" y="114" width="68" height="16" rx="8" fill="#F0EFEB" stroke="#2C2B2F" stroke-width="1.3"/><text x="885" y="126" font-size="10.5" fill="#2C2B2F" text-anchor="middle" font-family="Roboto Mono, monospace">product_id</text><path d="M 885 108 L 885 366 L 505 366 L 505 390" fill="none" stroke="#2C2B2F" stroke-width="2.2" marker-end="url(#arrow)"/><line x1="390" y1="250" x2="330" y2="440" stroke="#2C2B2F" stroke-width="2.2" marker-end="url(#arrow)"/><rect x="340" y="336" width="41" height="16" rx="8" fill="#F0EFEB" stroke="#2C2B2F" stroke-width="1.3"/><text x="360" y="348" font-size="10.5" fill="#2C2B2F" text-anchor="middle" font-family="Roboto Mono, monospace">emp_id</text><line x1="505" y1="310" x2="505" y2="390" stroke="#2C2B2F" stroke-width="2.2" marker-end="url(#arrow)"/><rect x="485" y="341" width="41" height="16" rx="8" fill="#F0EFEB" stroke="#2C2B2F" stroke-width="1.3"/><text x="505" y="353" font-size="10.5" fill="#2C2B2F" text-anchor="middle" font-family="Roboto Mono, monospace">emp_id</text><line x1="505" y1="310" x2="505" y2="540" stroke="#2C2B2F" stroke-width="2.2" marker-end="url(#arrow)"/><rect x="475" y="416" width="61" height="16" rx="8" fill="#F0EFEB" stroke="#2C2B2F" stroke-width="1.3"/><text x="505" y="428" font-size="10.5" fill="#2C2B2F" text-anchor="middle" font-family="Roboto Mono, monospace">signed_by</text><line x1="620" y1="250" x2="660" y2="450" stroke="#2C2B2F" stroke-width="2.2" marker-end="url(#arrow)"/><rect x="572" y="341" width="135" height="16" rx="8" fill="#F0EFEB" stroke="#2C2B2F" stroke-width="1.3"/><text x="640" y="353" font-size="10.5" fill="#2C2B2F" text-anchor="middle" font-family="Roboto Mono, monospace">emp_id / approved_by</text><line x1="505" y1="500" x2="505" y2="540" stroke="#2C2B2F" stroke-width="2.2" marker-end="url(#arrow)"/><rect x="485" y="511" width="41" height="16" rx="8" fill="#F0EFEB" stroke="#2C2B2F" stroke-width="1.3"/><text x="505" y="523" font-size="10.5" fill="#2C2B2F" text-anchor="middle" font-family="Roboto Mono, monospace">adj_id</text><path d="M 620 216 C 690 188, 690 266, 620 272" fill="none" stroke="#B4835B" stroke-width="2.2" marker-end="url(#arrowfk)"/><rect x="638" y="222" width="76" height="16" rx="8" fill="#F0EFEB" stroke="#2C2B2F" stroke-width="1.3"/><text x="676" y="234" font-size="10.5" fill="#B4835B" text-anchor="middle" font-family="Roboto Mono, monospace">manager_id</text><line x1="885" y1="290" x2="770" y2="390" stroke="#B4835B" stroke-width="2.2" stroke-dasharray="5,5"/><rect x="767" y="331" width="122" height="16" rx="8" fill="#F0EFEB" stroke="#2C2B2F" stroke-width="1.3"/><text x="828" y="343" font-size="10.5" fill="#B4835B" text-anchor="middle" font-family="Roboto Mono, monospace">aucune cle commune</text><rect x="26" y="26" width="190" height="88" rx="14" fill="#2C2B2F"/><rect x="20" y="20" width="190" height="88" rx="14" fill="#FFFFFF" stroke="#2C2B2F" stroke-width="2.5"/><rect x="20" y="20" width="190" height="28" rx="14" fill="#404672"/><rect x="20" y="34" width="190" height="14" fill="#404672"/><text x="115.0" y="38.5" font-size="12.5" font-weight="700" fill="#F0EFEB" text-anchor="middle" font-family="Roboto Condensed, Arial, sans-serif" letter-spacing="0.03em">stores</text><text x="32" y="66" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">PK store_id</text><text x="32" y="82" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">name, city, region, opened_date</text><rect x="796" y="26" width="190" height="88" rx="14" fill="#2C2B2F"/><rect x="790" y="20" width="190" height="88" rx="14" fill="#FFFFFF" stroke="#2C2B2F" stroke-width="2.5"/><rect x="790" y="20" width="190" height="28" rx="14" fill="#404672"/><rect x="790" y="34" width="190" height="14" fill="#404672"/><text x="885.0" y="38.5" font-size="12.5" font-weight="700" fill="#F0EFEB" text-anchor="middle" font-family="Roboto Condensed, Arial, sans-serif" letter-spacing="0.03em">products</text><text x="802" y="66" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">PK product_id</text><text x="802" y="82" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">name, category, unit_price</text><rect x="396" y="196" width="230" height="120" rx="14" fill="#2C2B2F"/><rect x="390" y="190" width="230" height="120" rx="14" fill="#FFFFFF" stroke="#2C2B2F" stroke-width="2.5"/><rect x="390" y="190" width="230" height="28" rx="14" fill="#404672"/><rect x="390" y="204" width="230" height="14" fill="#404672"/><text x="505.0" y="208.5" font-size="12.5" font-weight="700" fill="#F0EFEB" text-anchor="middle" font-family="Roboto Condensed, Arial, sans-serif" letter-spacing="0.03em">employees</text><text x="402" y="236" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">PK emp_id</text><text x="402" y="252" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">FK store_id</text><text x="402" y="268" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">FK manager_id -> emp_id</text><text x="402" y="284" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">role, hire_date</text><rect x="796" y="196" width="190" height="100" rx="14" fill="#2C2B2F"/><rect x="790" y="190" width="190" height="100" rx="14" fill="#FFFFFF" stroke="#2C2B2F" stroke-width="2.5"/><rect x="790" y="190" width="190" height="28" rx="14" fill="#404672"/><rect x="790" y="204" width="190" height="14" fill="#404672"/><text x="885.0" y="208.5" font-size="12.5" font-weight="700" fill="#F0EFEB" text-anchor="middle" font-family="Roboto Condensed, Arial, sans-serif" letter-spacing="0.03em">vendors</text><text x="802" y="236" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">PK vendor_id</text><text x="802" y="252" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">vendor_name, siret, iban</text><rect x="136" y="396" width="200" height="100" rx="14" fill="#2C2B2F"/><rect x="130" y="390" width="200" height="100" rx="14" fill="#FFFFFF" stroke="#2C2B2F" stroke-width="2.5"/><rect x="130" y="390" width="200" height="28" rx="14" fill="#404672"/><rect x="130" y="404" width="200" height="14" fill="#404672"/><text x="230.0" y="408.5" font-size="12.5" font-weight="700" fill="#F0EFEB" text-anchor="middle" font-family="Roboto Condensed, Arial, sans-serif" letter-spacing="0.03em">sales</text><text x="142" y="436" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">PK sale_id</text><text x="142" y="452" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">FK store_id, emp_id, product_id</text><text x="142" y="468" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">sale_date, discount_pct, payment_method</text><rect x="396" y="396" width="230" height="110" rx="14" fill="#2C2B2F"/><rect x="390" y="390" width="230" height="110" rx="14" fill="#FFFFFF" stroke="#2C2B2F" stroke-width="2.5"/><rect x="390" y="390" width="230" height="28" rx="14" fill="#404672"/><rect x="390" y="404" width="230" height="14" fill="#404672"/><text x="505.0" y="408.5" font-size="12.5" font-weight="700" fill="#F0EFEB" text-anchor="middle" font-family="Roboto Condensed, Arial, sans-serif" letter-spacing="0.03em">inventory_adjustments</text><text x="402" y="436" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">PK adj_id</text><text x="402" y="452" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">FK store_id, emp_id, product_id</text><text x="402" y="468" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">adj_type, adj_date, quantity</text><rect x="666" y="396" width="220" height="120" rx="14" fill="#2C2B2F"/><rect x="660" y="390" width="220" height="120" rx="14" fill="#FFFFFF" stroke="#2C2B2F" stroke-width="2.5"/><rect x="660" y="390" width="220" height="28" rx="14" fill="#404672"/><rect x="660" y="404" width="220" height="14" fill="#404672"/><text x="770.0" y="408.5" font-size="12.5" font-weight="700" fill="#F0EFEB" text-anchor="middle" font-family="Roboto Condensed, Arial, sans-serif" letter-spacing="0.03em">expense_reports</text><text x="672" y="436" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">PK report_id</text><text x="672" y="452" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">FK emp_id, approved_by</text><text x="672" y="468" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">vendor_name_raw (texte libre)</text><text x="672" y="484" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">category, amount, status</text><rect x="396" y="546" width="230" height="90" rx="14" fill="#2C2B2F"/><rect x="390" y="540" width="230" height="90" rx="14" fill="#FFFFFF" stroke="#2C2B2F" stroke-width="2.5"/><rect x="390" y="540" width="230" height="28" rx="14" fill="#404672"/><rect x="390" y="554" width="230" height="14" fill="#404672"/><text x="505.0" y="558.5" font-size="12.5" font-weight="700" fill="#F0EFEB" text-anchor="middle" font-family="Roboto Condensed, Arial, sans-serif" letter-spacing="0.03em">audit_signoffs</text><text x="402" y="586" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">PK signoff_id</text><text x="402" y="602" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">FK adj_id, signed_by</text><text x="402" y="618" font-size="10.5" fill="#2C2B2F" font-family="Roboto Mono, monospace">sign_date</text></svg>
+      </div>
+    </details>
+  </div>
+
+  <div class="carte section" id="consoleCard">
+    <div class="surtitre">Console SQL</div>
+    <h2>Ecrivez et executez vos requetes ici</h2>
+    <textarea class="sql" id="sqlInput" placeholder="SELECT * FROM employees LIMIT 5;"></textarea>
+    <div class="answer-row">
+      <button class="cta" id="runBtn" onclick="runQuery()" disabled><span id="runBtnLabel">Executer</span></button>
+      <button class="cta secondary" onclick="document.getElementById('sqlInput').value=''">Effacer</button>
+      <span class="small" id="sqlStatus"><span class="spinner"></span>Chargement du moteur SQL...</span>
+    </div>
+    <div class="kbd-hint">Astuce : <kbd>Ctrl</kbd>+<kbd>Entree</kbd> (ou <kbd>Cmd</kbd>+<kbd>Entree</kbd>) pour executer directement depuis l'editeur. <kbd>Tab</kbd> indente sans changer de champ.</div>
+    <div class="result-toolbar" id="resultToolbar" style="display:none">
+      <span class="small" id="rowCount"></span>
+      <button class="cta secondary" id="copyBtn" onclick="copyResults()" style="padding:6px 14px;font-size:12.5px">Copier en CSV</button>
+    </div>
+    <div class="result-box" id="resultBox"></div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step" id="step1">
+    <div class="step-head">
+      <div><span class="badge" id="badge1">1</span></div>
+      <div style="flex:1">
+        <div class="surtitre stamp">Piece N&#176;1</div>
+        <h3>Un magasin decroche sur les remises</h3>
+      </div>
+    </div>
+    <p>Comparez le taux de remise moyen par employe sur mars-avril 2026 au reste du reseau. Un profil se detache tres nettement.</p>
+    <details><summary>Indice</summary><div class="hint-box">Filtrez <code>sale_date</code> sur 2026-03 et 2026-04, groupez par employe, triez sur la moyenne de <code>discount_pct</code> decroissante. Comparez ensuite ce chiffre a la moyenne globale du reseau pour mesurer l'ecart.</div></details>
+    <div class="answer-row">
+      <input class="ans" id="ans1" placeholder="Nom complet de l'employe suspect">
+      <button class="cta" onclick="checkAnswer(1)">Valider</button>
+    </div>
+    <div id="fb1"></div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step locked" id="step2">
+    <div class="step-head">
+      <div><span class="badge" id="badge2">2</span></div>
+      <div style="flex:1">
+        <div class="surtitre stamp">Piece N&#176;2</div>
+        <h3>Des pertes jamais controlees</h3>
+      </div>
+    </div>
+    <p>En procedure normale, tout ajustement de stock de type <code>write-off</code> doit avoir une ligne correspondante dans <code>audit_signoffs</code>. Trouvez les write-off qui n'ont jamais ete controles, et calculez leur valeur totale au prix unitaire produit.</p>
+    <details><summary>Indice</summary><div class="hint-box">LEFT JOIN <code>inventory_adjustments</code> vers <code>audit_signoffs</code> sur <code>adj_id</code>, filtrez la ou le signoff est NULL et <code>adj_type='write-off'</code>. Joignez <code>products</code> pour valoriser.</div></details>
+    <div class="answer-row">
+      <input class="ans" id="ans2a" placeholder="Nb write-off non signes" style="max-width:240px">
+      <input class="ans" id="ans2b" placeholder="Valeur totale (euros)" style="max-width:220px">
+      <button class="cta" onclick="checkAnswer(2)">Valider</button>
+    </div>
+    <div id="fb2"></div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step locked" id="step3">
+    <div class="step-head">
+      <div><span class="badge" id="badge3">3</span></div>
+      <div style="flex:1">
+        <div class="surtitre stamp">Piece N&#176;3</div>
+        <h3>Remonter la chaine hierarchique</h3>
+      </div>
+    </div>
+    <p>La table <code>employees</code> est auto-referencee via <code>manager_id</code>. Remontez la ligne hierarchique complete de la personne identifiee en Piece 1 : qui a autorite sur elle, et sur ce responsable, jusqu'au sommet de l'organisation ?</p>
+    <details><summary>Indice</summary><div class="hint-box"><code>WITH RECURSIVE chain AS (SELECT ... WHERE emp_id = X UNION ALL SELECT e.* FROM employees e JOIN chain c ON e.emp_id = c.manager_id)</code>. Le N+1 direct est la reponse attendue.</div></details>
+    <div class="answer-row">
+      <input class="ans" id="ans3" placeholder="Nom du responsable N+1 direct">
+      <button class="cta" onclick="checkAnswer(3)">Valider</button>
+    </div>
+    <div id="fb3"></div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step locked" id="step4">
+    <div class="step-head">
+      <div><span class="badge" id="badge4">4</span></div>
+      <div style="flex:1">
+        <div class="surtitre stamp">Piece N&#176;4</div>
+        <h3>Des pertes qui se transforment en notes de frais</h3>
+      </div>
+    </div>
+    <p>Croisez <code>expense_reports</code> et <code>inventory_adjustments</code> pour un meme employe : combien de notes de frais ont ete soumises dans les 5 jours suivant un write-off non signe, et pour quel montant cumule ?</p>
+    <details><summary>Indice</summary><div class="hint-box">JOIN sur <code>emp_id</code>, condition <code>julianday(submit_date) - julianday(adj_date) BETWEEN 0 AND 5</code>, en ne gardant que les write-off sans signoff (reprenez la logique de l'etape 2).</div></details>
+    <div class="answer-row">
+      <input class="ans" id="ans4a" placeholder="Nombre de notes de frais" style="max-width:220px">
+      <input class="ans" id="ans4b" placeholder="Montant cumule (euros)" style="max-width:220px">
+      <button class="cta" onclick="checkAnswer(4)">Valider</button>
+    </div>
+    <div id="fb4"></div>
+  </div>
+
+  <!-- STEP 5 BONUS -->
+  <div class="step locked" id="step5">
+    <div class="step-head">
+      <div><span class="badge" id="badge5">5</span></div>
+      <div style="flex:1">
+        <div class="surtitre stamp">Piece N&#176;5</div>
+        <h3>Un fournisseur qui change d'orthographe a chaque facture</h3>
+      </div>
+    </div>
+    <p><code>expense_reports.vendor_name_raw</code> est une saisie libre, jamais nettoyee. Normalisez ce champ (casse, espaces) pour regrouper toutes les variantes orthographiques d'un meme fournisseur suspect, et calculez le montant total qui lui a ete verse. <strong>Ce montant sera le prejudice confirme a reporter en Piece 6.</strong></p>
+    <details><summary>Indice</summary><div class="hint-box"><code>LOWER(TRIM(vendor_name_raw)) LIKE '%...%'</code>. Cherchez un nom qui n'apparait dans aucune autre boutique que celle de l'etape 1, avec au moins 4 orthographes differentes.</div></details>
+    <div class="answer-row">
+      <input class="ans" id="ans5a" placeholder="Nom du fournisseur suspect" style="max-width:260px">
+      <input class="ans" id="ans5b" placeholder="Montant total (euros)" style="max-width:220px">
+      <button class="cta" onclick="checkAnswer(5)">Valider</button>
+    </div>
+    <div id="fb5"></div>
+  </div>
+
+  <!-- FINAL -->
+  <div class="step locked" id="stepFinal">
+    <div class="step-head">
+      <div><span class="badge" id="badgeF">6</span></div>
+      <div style="flex:1">
+        <div class="surtitre stamp">Bilan</div>
+        <h3>Le rapport d'audit</h3>
+      </div>
+    </div>
+    <p>Ecrivez une requete unique qui rassemble toutes les preuves (nom, role, magasin, montant du prejudice confirme) pour clore le dossier. <strong>Attention a ne pas confondre deux montants :</strong> la valeur retail des pertes de stock (calculee en Piece 2, une estimation non prouvee) et le prejudice confirme (calcule en Piece 5, le montant reellement verse au fournisseur fictif) — c'est ce second montant qui est demande ici. La direction demande aussi une derniere chose pour le rapport : au-dela du cas confirme, combien de profils, tous employes confondus, cumulent <strong>plus de 3 ajustements de stock</strong> (tous types confondus) sur toute la periode, un volume suffisant pour justifier une revue de routine ?</p>
+    <details><summary>Indice</summary><div class="hint-box">Un simple <code>WHERE</code> ne peut pas filtrer sur un total calcule apres regroupement : il faut <code>GROUP BY emp_id</code> puis <code>HAVING COUNT(*) &gt; 3</code> sur la table <code>inventory_adjustments</code>, sans filtrer sur <code>adj_type</code> ni sur un employe en particulier cette fois.</div></details>
+    <div class="answer-row">
+      <input class="ans" id="ansFa" placeholder="Nom du responsable">
+      <input class="ans" id="ansFb" placeholder="Prejudice (euros)" title="Le montant confirme = ce qui a ete reellement verse au fournisseur fictif (Piece 5), pas la valeur retail des pertes de stock (Piece 2)." style="max-width:180px">
+      <input class="ans" id="ansFc" placeholder="Profils a surveiller (nb)" style="max-width:200px">
+      <button class="cta" onclick="checkAnswer('F')">Cloturer le dossier</button>
+    </div>
+    <div id="fbF"></div>
+  </div>
+
+  <div class="final-reveal" id="finalReveal">
+    <div class="case-stamp">Dossier classe</div>
+    <div class="surtitre on-marine">Rapport d'audit — conclusion</div>
+    <h3 id="revealName"></h3>
+    <p id="revealText"></p>
+    <div class="answer-row" id="revealChips"></div>
+    <div class="share-block" id="shareBlock">
+      <div class="surtitre on-marine">Partagez votre exploit</div>
+      <canvas id="shareCanvas" width="1200" height="675"></canvas>
+      <div class="answer-row">
+        <button class="cta" onclick="copyShareCard()">Copier l'image</button>
+        <button class="cta secondary" onclick="downloadShareCard()">Telecharger</button>
+        <span class="small" id="shareStatus"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="facil-link" id="facilLink" style="display:none">
+    <a onclick="document.getElementById('facilPanel').style.display = document.getElementById('facilPanel').style.display==='block' ? 'none':'block'">Mode facilitateur</a>
+  </div>
+  <div id="facilPanel" class="susp-gate" style="display:none">
+    <div id="suspGateForm" class="susp-gate-form">
+      <input type="password" id="suspPassInput" class="susp-pass-input" placeholder="Mot de passe" autocomplete="off">
+      <button class="cta secondary susp-gate-btn" onclick="checkSuspPassword()">OK</button>
+      <div id="suspGateMsg" class="small"></div>
+    </div>
+    <div id="suspContent"></div>
+  </div>
+
+  <footer>MeltOne — Business Unit Data &amp; IA · Atelier interne · Base de donnees fictive</footer>
+</div>
+
+<button id="backToConsoleBtn" class="fab" onclick="goToConsole()" title="Remonter a la console SQL">
+  <span class="fab-arrow">&#8593;</span> Console SQL
+</button>
+
+<script src="sql-wasm.js"></script>
+<script>
+const e={s1:"744e6c6814d0b39f714a88f1f7128dc44692818bf7eeb805419448ccd20d343d",s2_count:"e7f6c011776e8db7cd330b54174fd76f7d0216b612387a5ffcfb81e6f0919683",s2_value:["7f13fffc2adca6bc5e54d5e71f5bee280f361b1f1eadce8c301caab57582c4dd","5c4ec8e86515c055fce4ba95faaa33cfb091ee69aaaad0c91f7ab963e8b2fba9","42e1cca49250c8bac3a61f4b91d206b673681e723c633cc5b5e1951751331d71"],s3:"49a3672d82dc9168e0e0570176ccfd796ab3b85c05a818a3ebefcabf9f39378a",s4_count:["e7f6c011776e8db7cd330b54174fd76f7d0216b612387a5ffcfb81e6f0919683","7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451","2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3","19581e27de7ced00ff1ce50b2047e7a567c76b1cbaebabe5ef03f7c3017bb5b7","4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5"],s4_value:["a8b7d51dd54b96c53aed5269e96777238830adde1c59d8c717a684af0840b87a","cf99aa7965d43c1a2f73c5a8a27654dc4b22b6e2c319f0d3feef482e0a195d66","b2745a77d53fd7d4fe4ddb5277ceabf006d8baed1169df1e0c5ea4d84f06b4ce"],s5_vendor:["586dd8e254788e222245160044c0fc7c916f95da8a22d09007320922d1492db6","428cbf997f9bae7b0612e46cc4087a5ed3f2b126d54ee1cbeefcbdf98c2604cb"],s5_value:["1ae86bf912a87be6c66996f4f75918548ccee0399f0af3c4b226e7c71f65d304","a470392fca6ad97ff80a50b22be360a044c006fefbec182d2d678e5c703b4fe2","c317bc2a8c10ba14203b383f2715d4350ea0c891b45a9d9ca41430c203eb99cf"],s6_watchlist:"ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d",final_culprit:"744e6c6814d0b39f714a88f1f7128dc44692818bf7eeb805419448ccd20d343d",final_total:["1ae86bf912a87be6c66996f4f75918548ccee0399f0af3c4b226e7c71f65d304","a470392fca6ad97ff80a50b22be360a044c006fefbec182d2d678e5c703b4fe2","c317bc2a8c10ba14203b383f2715d4350ea0c891b45a9d9ca41430c203eb99cf"]},t={};function n(e){return(e||"").toString().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim().replace(/\s+/g," ").replace(/[^a-z0-9 ]/g,"").replace(/\s+/g,"")}function a(e){if(null==e)return null;let t=e.toString().trim().replace(/\s+/g,"");t=-1!==t.indexOf(",")&&-1!==t.indexOf(".")?t.replace(/\./g,"").replace(",","."):t.replace(",",".");const n=parseFloat(t);return isNaN(n)?null:n.toFixed(2)}function o(e){const t=parseInt(e,10);return isNaN(t)?null:String(t)}async function s(e){const t=await crypto.subtle.digest("SHA-256",(new TextEncoder).encode(e));return Array.from(new Uint8Array(t)).map(e=>e.toString(16).padStart(2,"0")).join("")}async function l(e,t){if(null===e)return!1;const n=await s(e);return Array.isArray(t)?t.includes(n):n===t}let r=null,i=Date.now();const c=["step1","step2","step3","step4","step5","stepFinal"],d={step3:!0,step4:!0,step5:!0},u={step1:"pdot-1",step2:"pdot-2",step3:"pdot-3",step4:"pdot-4",step5:"pdot-5",stepFinal:"pdot-F"};let f=0;const m=new Image;m.src="meltone_wordmark.png";const p=new Set,b=document.querySelectorAll(".step details").length;document.querySelectorAll(".step details").forEach((e,t)=>{e.addEventListener("toggle",()=>{e.open&&p.add(t)})});const g=new Set(["step1"]),h={step1:Date.now()},v={},y={},E={},w={};function I(e,t){const n=document.getElementById(u[e]);n&&(n.classList.remove("unlocked","current","done"),t&&n.classList.add(t),n.textContent="done"===t?"✓":n.textContent)}function goTo(e){const t=document.getElementById(e);t&&!t.classList.contains("locked")&&t.scrollIntoView({behavior:"smooth",block:"start"})}function goToConsole(){const e=document.getElementById("sqlInput");e.scrollIntoView({behavior:"smooth",block:"center"}),setTimeout(()=>e.focus(),400)}document.getElementById("sqlInput").addEventListener("paste",()=>{g.forEach(e=>{y[e]=(y[e]||0)+1})}),document.addEventListener("visibilitychange",()=>{document.hidden||g.forEach(e=>{E[e]=(E[e]||0)+1})}),Promise.all([initSqlJs({locateFile:e=>e}),fetch("voltane.db").then(e=>e.arrayBuffer())]).then(([e,t])=>{r=new e.Database(new Uint8Array(t)),document.getElementById("sqlStatus").textContent="Base chargee (7 tables). Prete a interroger.",document.getElementById("runBtn").disabled=!1,I("step1","current")}).catch(e=>{document.getElementById("sqlStatus").textContent="Erreur de chargement moteur SQL : "+e}),setInterval(()=>{const e=Math.floor((Date.now()-i)/1e3),t=String(Math.floor(e/60)).padStart(2,"0"),n=String(e%60).padStart(2,"0");document.getElementById("ptime").textContent=t+":"+n},1e3);const S=document.getElementById("backToConsoleBtn"),x=document.getElementById("consoleCard");let C=!1;function B(){document.getElementById("pscore").textContent=f+"/6"}function L(e){if(!e||0===e.length)return'<p class="small" style="padding:10px">Aucune ligne retournee.</p>';const{columns:t,values:n}=e[0];let a="<table><thead><tr>"+t.map(e=>"<th>"+e+"</th>").join("")+"</tr></thead><tbody>";for(const e of n.slice(0,200))a+="<tr>"+e.map(e=>"<td>"+(null===e?"<i>null</i>":e)+"</td>").join("")+"</tr>";return a+="</tbody></table>",a}S&&x&&"IntersectionObserver"in window&&new IntersectionObserver(e=>{e.forEach(e=>{e.isIntersecting?(C=!0,S.style.display="none"):S.style.display=C?"flex":"none"})},{threshold:0}).observe(x);let T=null;function runQuery(){const e=document.getElementById("sqlInput").value.trim(),t=document.getElementById("resultBox"),n=document.getElementById("sqlStatus"),a=document.getElementById("resultToolbar");if(!r)return void(n.textContent="Moteur SQL non pret.");if(!e)return;g.forEach(e=>{w[e]=(w[e]||0)+1});const o=document.getElementById("runBtn");o.disabled=!0,document.getElementById("runBtnLabel").innerHTML='<span class="spinner"></span>Execution...',setTimeout(()=>{try{const o=r.exec(e);if(T=o,t.innerHTML=L(o),o.length&&o[0].values.length){const e=o[0].values.length;document.getElementById("rowCount").textContent=e+" ligne(s)"+(200===e?" (affichage limite aux 200 premieres)":""),a.style.display="flex",n.textContent=""}else a.style.display="none",n.textContent="Requete executee (pas de resultat tabulaire)."}catch(e){t.innerHTML="",a.style.display="none",n.textContent="Erreur SQL : "+e.message}o.disabled=!1,document.getElementById("runBtnLabel").textContent="Executer"},50)}function copyResults(){if(!T||!T.length)return;const{columns:e,values:t}=T[0],n=[e.join(";"),...t.map(e=>e.map(e=>null===e?"":e).join(";"))].join("\n");navigator.clipboard.writeText(n).then(()=>{const e=document.getElementById("copyBtn"),t=e.textContent;e.textContent="Copie !",setTimeout(()=>e.textContent=t,1500)})}function _(e){const t=document.getElementById(e);t&&(t.classList.remove("locked"),t.classList.add("reveal"),I(e,"current"),g.add(e),h[e]||(h[e]=Date.now()))}document.getElementById("sqlInput").addEventListener("keydown",function(e){if("Enter"===e.key&&(e.ctrlKey||e.metaKey)&&(e.preventDefault(),runQuery()),"Tab"===e.key){e.preventDefault();const t=e.target,n=t.selectionStart,a=t.selectionEnd;t.value=t.value.slice(0,n)+"  "+t.value.slice(a),t.selectionStart=t.selectionEnd=n+2}}),document.addEventListener("keydown",function(e){if("Enter"===e.key&&e.target.classList&&e.target.classList.contains("ans")){const t=e.target.closest(".step");if(!t)return;const n={step1:1,step2:2,step3:3,step4:4,step5:5,stepFinal:"F"};void 0!==n[t.id]&&(e.preventDefault(),checkAnswer(n[t.id]))}});const D=new Set;function F(e,t){if(D.has(t))return;D.add(t),v[t]=Date.now()-(h[t]||i),g.delete(t);const n=document.getElementById(e);n&&(n.classList.add("done"),n.textContent="✓"),I(t,"done"),f++,B()}function A(e,t,n){const a=document.getElementById(e);if(a.innerHTML='<div class="feedback '+(t?"ok":"ko")+'">'+n+"</div>",!t){const e=a.closest(".step");e&&(e.classList.remove("shake"),e.offsetWidth,e.classList.add("shake"))}}function M(e){const t=c.indexOf(e),n=c[t+1];n&&setTimeout(()=>goTo(n),700)}async function checkAnswer(s){if(1===s){const a=document.getElementById("ans1").value,o=await l(n(a),e.s1);o&&(t.employee=a.trim()),A("fb1",o,o?"Exact. "+t.employee+" concentre des remises de plus de 25% sur mars-avril 2026, tres loin de la moyenne du reseau.":"Pas encore. Verifiez votre GROUP BY et votre filtre de dates."),o&&(F("badge1","step1"),document.getElementById("step1").classList.add("done"),_("step2"),M("step1"))}if(2===s){const n=document.getElementById("ans2a").value,s=document.getElementById("ans2b").value,r=await l(o(n),e.s2_count),i=await l(a(s),e.s2_value),c=r&&i;c&&(t.writeoffCount=o(n),t.writeoffValue=a(s)),A("fb2",c,c?"Exact. "+t.writeoffCount+" write-off jamais controles, pour une valeur catalogue d'environ "+Number(t.writeoffValue).toLocaleString("fr-FR")+" euros, tous dans le meme magasin.":"Pas encore. Verifiez le filtre adj_type et la jointure vers audit_signoffs (LEFT JOIN + IS NULL)."),c&&(F("badge2","step2"),document.getElementById("step2").classList.add("done"),_("step3"),M("step2"))}if(3===s){const a=document.getElementById("ans3").value,o=await l(n(a),e.s3);o&&(t.manager=a.trim()),A("fb3",o,o?"Exact. "+t.manager+" est le N+1 direct et le valideur de ses notes de frais : un potentiel defaut de controle a documenter.":"Pas encore. Relisez votre CTE recursive : partez de l'employe de l'etape 1 et remontez via manager_id."),o&&(F("badge3","step3"),document.getElementById("step3").classList.add("done"),_("step4"),M("step3"))}if(4===s){const n=document.getElementById("ans4a").value,s=document.getElementById("ans4b").value,r=await l(o(n),e.s4_count),i=await l(a(s),e.s4_value),c=r&&i;c&&(t.claimsCount=o(n),t.claimsValue=a(s)),A("fb4",c,c?"Coherent avec le dossier : plusieurs notes de frais suivent de pres les write-off non controles, pour un montant proche de "+Number(t.claimsValue).toLocaleString("fr-FR")+" euros.":"Pas encore. Verifiez votre fenetre temporelle (0 a 5 jours) et que vous ne gardez que les write-off sans signoff."),c&&(F("badge4","step4"),document.getElementById("step4").classList.add("done"),_("step5"),_("stepFinal"),M("step4"))}if(5===s){const o=document.getElementById("ans5a").value,s=document.getElementById("ans5b").value,r=await l(n(o),e.s5_vendor),i=await l(a(s),e.s5_value),c=r&&i;c&&(t.vendor=o.trim(),t.vendorValue=a(s)),A("fb5",c,c?'Exact. "'+t.vendor+'" (et ses variantes orthographiques) a percu environ '+Number(t.vendorValue).toLocaleString("fr-FR")+" euros : c'est la preuve materielle du detournement.":"Pas encore. Normalisez la casse et les espaces, cherchez le fournisseur qui n'existe que sur les notes de frais de ce magasin."),c&&(F("badge5","step5"),document.getElementById("step5").classList.add("done"))}if("F"===s){const s=document.getElementById("ansFa").value,r=document.getElementById("ansFb").value,i=document.getElementById("ansFc").value,c=await l(n(s),e.final_culprit),d=await l(a(r),e.final_total),u=await l(o(i),e.s6_watchlist),f=c&&d&&u;f&&(t.culprit=s.trim(),t.total=a(r),t.watchlist=o(i)),A("fbF",f,f?"Dossier cloture.":"Pas tout a fait. Verifiez les trois champs : le nom, le prejudice confirme (montant verse au fournisseur fictif, pas la valeur retail), et le nombre de profils a surveiller."),f&&(F("badgeF","stepFinal"),document.getElementById("stepFinal").classList.add("done"),document.getElementById("finalReveal").style.display="block",document.getElementById("revealName").textContent=t.culprit+" — profil confirme",document.getElementById("revealText").textContent="Entre octobre 2025 et avril 2026, "+t.culprit+" a accorde des remises non justifiees, declare des pertes de stock jamais controlees par un audit, puis recupere une partie de la valeur via des notes de frais versees a un fournisseur fictif orthographie de multiples facons ("+t.vendor+"). Son manager, "+t.manager+", a valide ces notes de frais sans controle renforce : un point de vigilance a inclure dans les recommandations du rapport.",document.getElementById("revealChips").innerHTML='<span class="chip">Prejudice confirme : '+Number(t.total).toLocaleString("fr-FR")+' e</span><span class="chip">Valeur retail des pertes : '+Number(t.writeoffValue).toLocaleString("fr-FR")+' e</span><span class="chip">Profils a surveiller : '+t.watchlist+"</span>",document.getElementById("finalReveal").scrollIntoView({behavior:"smooth"}),document.getElementById("facilLink").style.display="block",P(),q())}}function P(){if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;const e=document.createElement("canvas");e.id="confettiCanvas",e.width=window.innerWidth,e.height=window.innerHeight,document.body.appendChild(e);const t=e.getContext("2d"),n=["#D5A47E","#404672","#9DD5D5","#CED9FA","#FCFDD5"],a=Array.from({length:130},()=>({x:Math.random()*e.width,y:-20-Math.random()*e.height*.5,r:4+5*Math.random(),c:n[Math.floor(Math.random()*n.length)],vy:2+3*Math.random(),vx:3*Math.random()-1.5,rot:360*Math.random(),vrot:12*Math.random()-6}));let o=0;!function n(){o++,t.clearRect(0,0,e.width,e.height),a.forEach(e=>{e.x+=e.vx,e.y+=e.vy,e.rot+=e.vrot,t.save(),t.translate(e.x,e.y),t.rotate(e.rot*Math.PI/180),t.fillStyle=e.c,t.fillRect(-e.r/2,-e.r/2,e.r,.6*e.r),t.restore()}),o<160?requestAnimationFrame(n):e.remove()}()}function R(e,t,n,a,o,s){e.beginPath(),e.moveTo(t+s,n),e.arcTo(t+a,n,t+a,n+o,s),e.arcTo(t+a,n+o,t,n+o,s),e.arcTo(t,n+o,t,n,s),e.arcTo(t,n,t+a,n,s),e.closePath()}function k(){const e=document.getElementById("shareCanvas"),t=e.getContext("2d"),n=e.width,a=e.height,o="#404672",s="#B4835B",l="#2C2B2F",r="#5B6179",i="#434343",c="#9DD5D5",d="#CED9FA",u="#FCFDD5";t.clearRect(0,0,n,a),t.fillStyle=o,t.fillRect(0,0,n,a),t.globalAlpha=.16,t.fillStyle=c,t.beginPath(),t.arc(60,40,140,0,7),t.fill(),t.fillStyle=u,t.beginPath(),t.arc(n-40,a-30,170,0,7),t.fill(),t.fillStyle=d,t.beginPath(),t.arc(n-60,60,110,0,7),t.fill(),t.globalAlpha=1;const f=56,p=56,g=n-112,h=a-112;t.fillStyle=l,R(t,66,66,g,h,26),t.fill(),t.fillStyle="#FFFFFF",R(t,f,p,g,h,26),t.fill(),t.lineWidth=5,t.strokeStyle=l,R(t,f,p,g,h,26),t.stroke();const v=112;let y=130;if(t.fillStyle=s,t.font='700 18px "Roboto Condensed", Arial, sans-serif',t.textBaseline="alphabetic",t.fillText("A T E L I E R   I N T E R N E   —   D A T A   &   I A",v,y),m.complete&&m.naturalWidth){const e=34,n=e*(m.naturalWidth/m.naturalHeight);t.drawImage(m,f+g-56-n,96,n,e)}y+=56,t.fillStyle=o,t.font='900 52px "Roboto", Arial, sans-serif',t.fillText("Enquete Voltane",v,y),y+=40,t.save(),t.translate(v,y),t.rotate(-2*Math.PI/180);const E="DOSSIER CLASSE";t.font='700 15px "Roboto Condensed", Arial, sans-serif';const w=t.measureText(E).width+40;t.fillStyle=l,R(t,0,-20,w,30,7),t.fill(),t.fillStyle=u,t.fillText(E,24,1),t.beginPath(),t.arc(14,-4,3.2,0,2*Math.PI),t.fillStyle=window.__shareSuspicionColor||"#9DD5D5",t.fill(),t.restore(),y+=56,t.fillStyle=i,t.font='500 24px "Roboto", Arial, sans-serif';const I=(window.__shareCulprit||"")+" demasquee. Le dossier est boucle.";t.fillText(I,v,y),y+=44,t.strokeStyle="#DADDE3",t.lineWidth=2,t.beginPath(),t.moveTo(v,y),t.lineTo(f+g-56,y),t.stroke();const S=[["TEMPS",window.__shareTime||"00:00"],["INDICES UTILISES",window.__shareHints||"0/"+b],["PIECES REUNIES",window.__shareScore||"0/6"],["PREJUDICE CONFIRME",window.__shareAmount||""]],x=(g-112)/2;S.forEach((e,n)=>{const a=n%2,l=Math.floor(n/2),r=v+a*x,i=y+112*l;t.fillStyle=s,t.font='700 14px "Roboto Condensed", Arial, sans-serif',t.fillText(e[0],r,i+46),t.fillStyle=o,t.font='700 40px "Roboto Mono", monospace',t.fillText(e[1],r,i+94)}),t.fillStyle=r,t.font='500 15px "Roboto", Arial, sans-serif',t.textAlign="center",t.fillText("MeltOne — Business Unit Data & IA — Atelier SQL Expert",n/2,p+h-34),t.textAlign="left"}function q(){const e=String(Math.floor((Date.now()-i)/1e3/60)).padStart(2,"0"),n=String(Math.floor((Date.now()-i)/1e3%60)).padStart(2,"0");window.__shareTime=e+":"+n,window.__shareScore=f+"/6",window.__shareHints=p.size+"/"+b,window.__shareCulprit=t.culprit,window.__shareAmount=Number(t.total).toLocaleString("fr-FR")+" e",window.__shareSuspicionColor=V().color,k();const a=document.getElementById("shareCanvas"),o=document.getElementById("shareStatus");if(navigator.clipboard&&window.ClipboardItem)try{const e=new Promise(e=>a.toBlob(e,"image/png")),t=new ClipboardItem({"image/png":e});navigator.clipboard.write([t]).then(()=>{o.textContent="Image copiee dans le presse-papier : collez-la (Ctrl+V) dans Slack, Teams ou un mail."}).catch(()=>{o.textContent='Copie automatique bloquee par le navigateur. Utilisez "Copier l\'image" ou "Telecharger".'})}catch(e){o.textContent='Copie automatique indisponible. Utilisez "Copier l\'image" ou "Telecharger".'}else o.textContent='Votre navigateur ne supporte pas la copie automatique. Utilisez "Telecharger".'}function copyShareCard(){const e=document.getElementById("shareCanvas"),t=document.getElementById("shareStatus");if(!navigator.clipboard||!window.ClipboardItem)return void(t.textContent='Copie non supportee par ce navigateur. Utilisez "Telecharger".');const n=new Promise(t=>e.toBlob(t,"image/png"));navigator.clipboard.write([new ClipboardItem({"image/png":n})]).then(()=>{t.textContent="Image copiee dans le presse-papier."}).catch(()=>{t.textContent='Copie impossible ici. Utilisez "Telecharger" ou un clic droit sur l\'image.'})}function downloadShareCard(){document.getElementById("shareCanvas").toBlob(e=>{const t=URL.createObjectURL(e),n=document.createElement("a");n.href=t,n.download="enquete-voltane-resultat.png",n.click(),setTimeout(()=>URL.revokeObjectURL(t),2e3),document.getElementById("shareStatus").textContent="Image telechargee."},"image/png")}function N(e){if(void 0===e)return"—";const t=Math.floor(e/1e3);return String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0")}function z(e,t,n,a,o){let s=0;return 0===n?s+=4:o&&1===n&&void 0!==a&&a<45e3&&(s+=1),e>=1&&(s+=2),e>=2&&(s+=1),t>=4?s+=2:t>=2&&(s+=1),s}function U(e){return e>=4?{label:"Eleve",cls:"susp-high",color:"#D5A47E"}:e>=2?{label:"Modere",cls:"susp-mid",color:"#FCFDD5"}:{label:"Faible",cls:"susp-low",color:"#9DD5D5"}}function V(){let e=0;return c.forEach(t=>{if(!D.has(t))return;const n=z(y[t]||0,E[t]||0,w[t]||0,v[t],d[t]);n>e&&(e=n)}),U(e)}function j(){const e={step1:"Piece 1",step2:"Piece 2",step3:"Piece 3",step4:"Piece 4",step5:"Piece 5 (bonus)",stepFinal:"Bilan"};let t="";c.forEach(n=>{const a=D.has(n),o=v[n],s=y[n]||0,l=E[n]||0,r=w[n]||0;if(!a)return void(t+="<tr><td>"+e[n]+"</td><td>"+(g.has(n)?"non resolue":"—")+"</td><td>"+r+"</td><td>"+s+"</td><td>"+l+'</td><td class="small">—</td></tr>');const i=U(z(s,l,r,o,d[n]));t+="<tr><td>"+e[n]+"</td><td>"+N(o)+"</td><td>"+r+"</td><td>"+s+"</td><td>"+l+'</td><td class="'+i.cls+'">'+i.label+"</td></tr>"});const n=V();return`\n  <table class="susp-table">\n    <thead><tr><th>Etape</th><th>Temps</th><th>Tentatives</th><th>Collages</th><th>Onglet quitte</th><th>Niveau</th></tr></thead>\n    <tbody>${t}</tbody>\n  </table>\n  <p class="small" style="margin-top:10px;color:var(--brume)">Signaux indicatifs, pas des preuves : a corroborer avec l'observation en salle. 0 tentative signifie qu'aucune requete n'a ete executee avant validation. Un collage peut aussi etre un brouillon personnel, un changement d'onglet une consultation de la documentation SQLite.</p>\n  <p class="small" style="margin-top:6px;color:var(--brume)">Niveau global (le pire des scores par etape) : <strong>${n.label}</strong>. Ce niveau est aussi encode, de facon discrete, dans le petit point colore accole au tampon "DOSSIER CLASSE" sur l'image partageable : turquoise = faible, jaune pale = modere, cuivre = eleve. Invisible pour qui ne sait pas que ca existe.</p>`}const O="be88b4eeaa193a7b6a82e68b33c3c2de2ebb3f64d2e5d362fcc08921296c5e4c";async function checkSuspPassword(){const e=document.getElementById("suspPassInput"),t=document.getElementById("suspGateMsg");await s(e.value)===O?(document.getElementById("suspGateForm").style.display="none",document.getElementById("suspContent").innerHTML=j()):(t.textContent="Incorrect.",e.value="",e.focus())}document.addEventListener("keydown",function(e){"Enter"===e.key&&"suspPassInput"===e.target.id&&(e.preventDefault(),checkSuspPassword())});
+</script>
+
+</body>
+</html>
